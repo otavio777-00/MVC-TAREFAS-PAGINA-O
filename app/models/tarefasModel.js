@@ -41,10 +41,11 @@ const tarefasModel = {
             }
         */
         try {
+            const situacao = dados.situacao !== undefined && dados.situacao !== null ? dados.situacao : 1;
             const [result] = await pool.query(
                 "insert into tarefas(`nome_tarefa`,`prazo_tarefa`,`situacao_tarefa`) "
                 + "values(?,?,?)",
-                [dados.nome, dados.prazo, dados.situacao]
+                [dados.nome, dados.prazo, situacao]
             )
             return result;
         } catch (erro) {
@@ -78,7 +79,7 @@ const tarefasModel = {
 
     totRegistros: async () => {
         try {
-            const [result] = await pool.query("SELECT count(*) as total FROM `lista-tarefas`.tarefas;");
+            const [result] = await pool.query("SELECT count(*) as total FROM tarefas;");
             return result[0].total;
         } catch (erro) {
             return erro;

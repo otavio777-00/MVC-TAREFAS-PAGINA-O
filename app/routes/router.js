@@ -15,7 +15,15 @@ router.get("/", async function (req, res) {
     // pagina 3 -> ofsset -> 10 ( pagina -1 * 5)
     const qtde = 5;
     let offset = (pagina-1) * qtde;
-    let total = Math.ceil( await tarefasModel.totRegistros() / qtde);
+    let total = 0;
+
+    try {
+        const totalRegistros = await tarefasModel.totRegistros();
+        total = Number.isInteger(totalRegistros) ? Math.ceil(totalRegistros / qtde) : 0;
+    } catch (erro) {
+        console.log("Erro ao calcular total de registros:", erro);
+        total = 0;
+    }
 
     if(total > 1){
         //paginação 
@@ -59,9 +67,15 @@ router.post("/manter-tarefa", async (req, res) => {
 
     try {
         if(objDados.id == 0){
-            const result = await tarefasModel.create(objDados);  
-        }else{
-            const result = await tarefasModel.update(objDados);  
+            const result = await tarefasModel.create(objDados);
+            if (result && result.code) {
+                console.log("Erro ao criar tarefa:", result);
+            }
+        } else {
+            const result = await tarefasModel.update(objDados);
+            if (result && result.code) {
+                console.log("Erro ao atualizar tarefa:", result);
+            }
         }
         
         res.redirect("/");
@@ -93,7 +107,8 @@ router.get("/teste-insert", async (req, res) => {
 
     const objDados = {
         nome: "limpar gabinete PC",
-        prazo: "2026-03-23"
+        prazo: "2026-03-23",
+        situacao: 1
     }
     try {
         const result = await tarefasModel.create(objDados);
